@@ -12,7 +12,10 @@ export function ConfigError() {
           <h1 className="text-lg font-bold text-neutral-900">App configuration missing</h1>
         </div>
         <p className="text-sm text-neutral-600 mb-4">
-          Firebase environment variables are not set. The app cannot start without them.
+          Firebase environment variables are missing or still set to placeholder values like{' '}
+          <code className="text-xs bg-neutral-100 px-1 rounded">your_api_key</code>.
+          Copy real keys from Firebase Console into <code className="text-xs bg-neutral-100 px-1 rounded">.env</code> (local)
+          or Netlify environment variables (production).
         </p>
         {missingFirebaseEnv.length > 0 && (
           <ul className="text-xs font-mono bg-neutral-100 rounded-xl p-3 mb-4 space-y-1 text-neutral-700">

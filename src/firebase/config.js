@@ -21,8 +21,15 @@ const requiredKeys = [
   ['VITE_FIREBASE_APP_ID', firebaseConfig.appId],
 ]
 
+const PLACEHOLDER_PATTERNS = [/^your_/i, /^replace/i, /example/i, /^xxx/i]
+
+function isValidEnvValue(value) {
+  if (!value || value === 'undefined') return false
+  return !PLACEHOLDER_PATTERNS.some((p) => p.test(String(value)))
+}
+
 export const missingFirebaseEnv = requiredKeys
-  .filter(([, value]) => !value || value === 'undefined')
+  .filter(([, value]) => !isValidEnvValue(value))
   .map(([key]) => key)
 
 export const isFirebaseConfigured = missingFirebaseEnv.length === 0
