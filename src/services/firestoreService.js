@@ -176,10 +176,30 @@ export async function createStore(ownerId, data) {
 }
 
 export async function updateStore(storeId, data) {
-  await updateDoc(doc(db, COLLECTIONS.STORES, storeId), {
+  const storeRef = doc(db, COLLECTIONS.STORES, storeId)
+  const before = await getDoc(storeRef)
+  const prevName = before.data()?.name
+
+  await updateDoc(storeRef, {
     ...data,
     updatedAt: serverTimestamp(),
   })
+
+  if (data.name && prevName && data.name !== prevName) {
+    const productsQ = query(
+      collection(db, COLLECTIONS.PRODUCTS),
+      where('storeId', '==', storeId),
+      limit(200)
+    )
+    const snap = await getDocs(productsQ)
+    if (!snap.empty) {
+      const batch = writeBatch(db)
+      snap.docs.forEach((d) => {
+        batch.update(d.ref, { storeName: data.name, updatedAt: serverTimestamp() })
+      })
+      await batch.commit()
+    }
+  }
 }
 
 // ─── Products CRUD ────────────────────────────────────────────

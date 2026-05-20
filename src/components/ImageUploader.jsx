@@ -1,6 +1,13 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Upload, X, Image as ImageIcon } from 'lucide-react'
 import { LazyImage } from './ui/LazyImage'
+
+function normalizeImages(images) {
+  if (!images?.length) return []
+  return images.map((img) =>
+    typeof img === 'string' ? { url: img, isNew: false } : img
+  )
+}
 
 export function ImageUploader({
   images = [],
@@ -9,7 +16,16 @@ export function ImageUploader({
   label = 'Upload images',
 }) {
   const inputRef = useRef(null)
-  const [previews, setPreviews] = useState(images)
+  const [previews, setPreviews] = useState(() => normalizeImages(images))
+
+  const imageKey = images
+    ?.map((img) => (typeof img === 'string' ? img : img?.url))
+    .filter(Boolean)
+    .join('|')
+
+  useEffect(() => {
+    setPreviews(normalizeImages(images))
+  }, [imageKey])
 
   const handleFiles = (files) => {
     const remaining = maxImages - previews.length
