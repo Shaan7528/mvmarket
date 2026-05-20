@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { onAuthStateChanged } from 'firebase/auth'
-import { auth } from '../firebase/config'
+import { auth, isFirebaseConfigured } from '../firebase/config'
 import { getUserDoc } from '../services/authService'
 
 const AuthContext = createContext(null)
@@ -17,6 +17,10 @@ export function AuthProvider({ children }) {
   }
 
   useEffect(() => {
+    if (!isFirebaseConfigured || !auth) {
+      setLoading(false)
+      return
+    }
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser)
       if (firebaseUser) {

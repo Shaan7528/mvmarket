@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
+import { isFirebaseConfigured, auth } from './firebase/config'
+import { ConfigError } from './components/ConfigError'
 import { AuthProvider } from './context/AuthContext'
 import { MainLayout } from './layouts/MainLayout'
 import { AuthLayout } from './layouts/AuthLayout'
@@ -36,6 +38,10 @@ import { AdminCategories } from './pages/admin/AdminCategories'
 import { AdminUsers } from './pages/admin/AdminUsers'
 
 export default function App() {
+  if (!isFirebaseConfigured || !auth) {
+    return <ConfigError />
+  }
+
   return (
     <AuthProvider>
       <BrowserRouter>

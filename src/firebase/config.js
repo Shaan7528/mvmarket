@@ -13,9 +13,35 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 }
 
-const app = initializeApp(firebaseConfig)
+const requiredKeys = [
+  ['VITE_FIREBASE_API_KEY', firebaseConfig.apiKey],
+  ['VITE_FIREBASE_AUTH_DOMAIN', firebaseConfig.authDomain],
+  ['VITE_FIREBASE_PROJECT_ID', firebaseConfig.projectId],
+  ['VITE_FIREBASE_STORAGE_BUCKET', firebaseConfig.storageBucket],
+  ['VITE_FIREBASE_APP_ID', firebaseConfig.appId],
+]
 
-export const auth = getAuth(app)
-export const db = getFirestore(app)
-export const storage = getStorage(app)
+export const missingFirebaseEnv = requiredKeys
+  .filter(([, value]) => !value || value === 'undefined')
+  .map(([key]) => key)
+
+export const isFirebaseConfigured = missingFirebaseEnv.length === 0
+
+let app = null
+let auth = null
+let db = null
+let storage = null
+
+if (isFirebaseConfigured) {
+  try {
+    app = initializeApp(firebaseConfig)
+    auth = getAuth(app)
+    db = getFirestore(app)
+    storage = getStorage(app)
+  } catch (err) {
+    console.error('Firebase init failed:', err)
+  }
+}
+
+export { auth, db, storage, app }
 export default app
